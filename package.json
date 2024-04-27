@@ -1,6 +1,6 @@
 {
   "name": "laravel-inertia-vue-translator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Yet another npm package, which allows you to add translation capabilities to your inertia + vue3 components, while integrating with a Laravel backend. It pairs best with the composer package: antonioprimera/laravel-js-localization",
   "main": "index.js",
   "scripts": {},
