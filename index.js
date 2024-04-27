@@ -1,5 +1,5 @@
 import Translator from "./translator";
-import inertiaPlugin from "./vue3InertiaPlugin";
+import translatorPlugin from "./vue3InertiaPlugin";
 import injectionKey from "./translatorInjectionKey";
 import {inject} from "vue";
 
@@ -9,5 +9,5 @@ const useTranslator = () => inject(injectionKey);
 export {
 	Translator,			//the translator class (so it can be extended or instantiated)
 	useTranslator,		//the injection method (to access the translator methods in the component scripts)
-	inertiaPlugin,		//the Inertia plugin (to add the translator methods to the app)
+	translatorPlugin,		//the Inertia plugin (to add the translator methods to the app)
 };
