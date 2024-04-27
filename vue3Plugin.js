@@ -1,3 +1,5 @@
+//--- This plugin will be used in the vue3 plugin sister package ------------------------------------------------------
+
 //import Translator from "./Translator";
 //import injectionKey from "./translatorInjectionKey";
 //
