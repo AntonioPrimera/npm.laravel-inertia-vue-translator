@@ -25,7 +25,6 @@ export default class {
 	//--- Translation methods ------------------------------------------------------------------------------------------
 	
 	translate(key, replace) {
-		console.log('translate', key, this.getDictionary());
 		let translation = this.#getTranslationFromDictionary(key, this.getDictionary());
 		if (!translation)
 			return key;
