@@ -1,4 +1,4 @@
-export default class {
+class Translator {
 	//--- Properties --------------------------------------------------------------------------------------------------
 	/**
 	 * The dictionary can be an object or a function that returns an object.
@@ -26,10 +26,28 @@ export default class {
 	
 	translate(key, replace) {
 		let translation = this.#getTranslationFromDictionary(key, this.getDictionary());
-		if (!translation)
+		
+		//if we have a translation or a set of replacements, we can proceed
+		if (translation || replace)
+			return this.#replacePlaceholders(translation ?? key, this.#normalizeReplaceObject(replace));
+		
+		//if we got here, we have no translation and no replacements, so we check if we have a composed key
+		if (!this.#isComposedKey(key))
 			return key;
 		
-		return this.#replacePlaceholders(translation, this.#normalizeReplaceObject(replace));
+		//if we have a composed key, we split it into its parts and try to translate it
+		const composedKey = this.#splitComposedKey(key);
+		
+		//if we have a count, we try to translate the plural form
+		if (composedKey.count !== null && !isNaN(composedKey.count))
+			return this.translatePlural(composedKey.key, composedKey.count, composedKey.replace);
+		
+		//if we have a replacement object, try to translate the key with the replacements (recursive call!)
+		if (composedKey.replace)
+			return this.translate(composedKey.key, composedKey.replace);
+		
+		//if we got here, we have a composed key without a count or replacements, so we return the key
+		return composedKey.key;
 	}
 	
 	translatePlural(key, count, replace) {
@@ -42,7 +60,7 @@ export default class {
 			return key;
 		
 		let replaceObject = this.#normalizeReplaceObject(replace);
-		let defaultReplaceObject = { count: count, value: count, n: count };
+		let defaultReplaceObject = { count: count, value: count };
 		
 		return this.#replacePlaceholders(translation, {...defaultReplaceObject, ...replaceObject});
 	}
@@ -88,7 +106,7 @@ export default class {
 	}
 	
 	#getTranslationFromDictionary(key, dictionary) {
-		return key.split('.').reduce((t, i) => t ? t[i] || null : null, dictionary);
+		return key ? key.split('.').reduce((t, i) => t ? t[i] || null : null, dictionary) : '';
 	}
 	
 	#replacePlaceholders(translation, replace) {
@@ -102,16 +120,16 @@ export default class {
 		return translation;
 	}
 
-	//normalize the replace object to a key-value object
+	//normalize the replacement object to a key-value object
 	#normalizeReplaceObject(replace) {
 		if (!replace)
 			return null;
 		
 		let replaceObject = replace;
 		
-		// if replace is a number, we assume it's: count, value, n
+		// if replace is a number, we assume it's: count OR value
 		if (typeof replaceObject === 'number')
-			replaceObject = { count: replace, value: replace, n: replace };
+			replaceObject = { count: replace, value: replace };
 		
 		// if replace is a string, we assume it's: value, name
 		if (typeof replaceObject === 'string')
@@ -119,4 +137,33 @@ export default class {
 		
 		return typeof replaceObject === 'object' ? replaceObject : null;
 	}
+	
+	#isComposedKey(key) {
+		return key && (key.includes('[') || key.includes('{'));
+	}
+	
+	//given a key in the form of 'a.b[1]{replace: value}', split it into
+	//the key 'a.b', the plural count 1, and the replacement object {replace: value}
+	#splitComposedKey(composedKey) {
+		// Updated regex to correctly handle missing parts
+		const match = composedKey.match(/^(.+?)(?:\[(\d+)])?(?:{(.+?)})?$/);
+		
+		// Return null if no match
+		if (!match) return { key: composedKey, count: null, replace: null };
+		
+		const key = match[1];
+		const count = match[2] ? parseInt(match[2], 10) : null;
+		const rawArgs = match[3];
+		
+		// Parse replacement arguments if provided
+		const replace = rawArgs
+			? Object.fromEntries(
+				rawArgs.split(',').map(pair => pair.split(':').map(s => s.trim()))
+			)
+			: null;
+		
+		return { key, count, replace };
+	}
 }
+
+export default Translator;

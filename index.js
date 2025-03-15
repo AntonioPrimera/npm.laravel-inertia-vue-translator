@@ -1,6 +1,6 @@
-import Translator from "./translator";
-import translatorPlugin from "./vue3InertiaPlugin";
-import injectionKey from "./translatorInjectionKey";
+import Translator from "./src/Translator";
+import translatorPlugin from "./src/vue3InertiaPlugin";
+import injectionKey from "./src/translatorInjectionKey";
 import {inject} from "vue";
 
 //export the translator instance (which was provided inside the plugin)

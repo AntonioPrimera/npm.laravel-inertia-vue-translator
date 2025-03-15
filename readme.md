@@ -85,6 +85,29 @@ return createApp({ render: () => h(App, props) })
 You can get creative with the way you provide the translations, as long as the dictionary can be resolved to an object
 with the translations.
 
+### Using composite keys
+
+Sometimes you want to provide the pluralization count and/or the replacement parameters as a single string, which
+can be passed to the `txt` / `translate` function, without the need to provide the count and/or the replacement
+parameters separately to the `txts` / `translatePlural` function.
+
+For this, you can use the following syntax:
+
+```js
+import {Translator} from 'laravel-inertia-vue-translator';
+const dictionary = {
+    'fruits' : {
+        'apples': '{0}I have no apples|{1}I have one apple|[2-*]I have :count apples and I have them from :name',
+        'pears': 'Pear|Pears'
+    }
+}
+const translator = new Translator(dictionary);
+const apples = translator.translate('fruits.apples[5]{name:John}'); //I have 5 apples and I have them from John
+const pear = translator.translate('fruits.pears[1]'); //Pear
+const pears = translator.translate('fruits.pears[2]'); //Pears
+const noPears = translator.translate('fruits.pears[0]'); //Pears
+```
+
 ## Related packages
 
 - [Composer Package: antonioprimera/laravel-js-localization](https://packagist.org/packages/antonioprimera/laravel-js-localization)
